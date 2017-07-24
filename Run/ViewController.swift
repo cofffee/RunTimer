@@ -8,6 +8,7 @@
 
 import UIKit
 import Foundation
+import CoreGraphics
 
 class ViewController: UIViewController {
     
@@ -21,11 +22,19 @@ class ViewController: UIViewController {
     
     var startStopButton: UIButton? = nil
     var pauseButton: UIButton? = nil
+    
+    var motivationLabel: UILabel? = nil
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
         
+        setUpView()
+        
+
+    }
+    func setUpView() {
+    
         let labelRect: CGRect = CGRect(x: 0, y: (view.frame.height / 2) - 25, width: view.frame.width, height: 50)
         timeLabel = UILabel(frame: labelRect)
         timeLabel?.textAlignment = .center
@@ -33,40 +42,60 @@ class ViewController: UIViewController {
         updateLabel()
         view.addSubview(timeLabel!)
         
-        
         let startStopButtonFrame = CGRect(x: ((view.frame.width / 2) - 30) + 30, y: (view.frame.height / 2) + 200, width: 60, height: 60)
         startStopButton = UIButton(frame: startStopButtonFrame)
-        startStopButton?.setTitle("Start", for: .normal)
+        startStopButton?.setTitle("start", for: .normal)
+        startStopButton?.titleLabel?.font = UIFont(name: "Helvetica", size: 20)
         startStopButton?.setTitleColor(UIColor.blue, for: .normal)
+        startStopButton?.layer.cornerRadius = startStopButtonFrame.width / 2
         startStopButton?.addTarget(self, action: (#selector(ViewController.toggle)), for: .touchUpInside)
         view.addSubview(startStopButton!)
         
         let pauseButtonFrame = CGRect(x: ((view.frame.width / 2) - 30) - 30, y: (view.frame.height / 2) + 200, width: 60, height: 60)
         pauseButton = UIButton(frame: pauseButtonFrame)
-        pauseButton?.setTitle("Pause", for: .normal)
+        pauseButton?.setTitle("pause", for: .normal)
+        pauseButton?.titleLabel?.font = UIFont(name: "Helvetica", size: 20)
         pauseButton?.setTitleColor(UIColor.blue, for: .normal)
+        pauseButton?.layer.cornerRadius = pauseButtonFrame.width / 2
         pauseButton?.addTarget(self, action: (#selector(ViewController.pauseTimer)), for: .touchUpInside)
         view.addSubview(pauseButton!)
-        startTimer()
+        
+        let motivationFrame: CGRect = CGRect(x: 0, y: 140, width: view.frame.width, height: 60)
+        motivationLabel = UILabel(frame: motivationFrame)
+        motivationLabel?.textAlignment = .center
+        motivationLabel?.font = UIFont(name: "Helvetica", size: 40)
+        motivationLabel?.text = "fuckin do it"
+        motivationLabel?.isHidden = true
+        view.addSubview(motivationLabel!)
     }
     func runView() {
         view.backgroundColor = getRandomColor()
+        motivationLabel?.isHidden = false
+        motivationLabel?.textColor = getRandomColor()
+        
+        startStopButton?.setTitleColor(getRandomColor(), for: .normal)
+        pauseButton?.setTitleColor(getRandomColor(), for: .normal)
     }
     func unRunView() {
         view.backgroundColor = UIColor.white
+        motivationLabel?.isHidden = true
+        startStopButton?.setTitleColor(UIColor.blue, for: .normal)
+        pauseButton?.setTitleColor(UIColor.blue, for: .normal)
+//        startStopButton?.backgroundColor = UIColor.white
+//        pauseButton?.backgroundColor = UIColor.white
     }
     func toggle() {
         if timer == nil {
             startTimer()
-            startStopButton?.setTitle("Stop", for: .normal)
+            startStopButton?.setTitle("stop", for: .normal)
         } else {
             stopTimer()
-            startStopButton?.setTitle("Start", for: .normal)
+            startStopButton?.setTitle("start", for: .normal)
         }
     
     }
-    func viewLogic() {
-        if minutes % 2 == 1 {
+    func viewLogic(option: Int) {
+        if minutes % 2 == 0 {
             runView()
         } else {
             unRunView()
@@ -81,8 +110,6 @@ class ViewController: UIViewController {
         //milliseconds 1000 = 1 sec
 
         milliSeconds += 1
-
-        
         
         if minutes == 60 {
             stopTimer()
@@ -100,7 +127,7 @@ class ViewController: UIViewController {
             updateLabel()
         }
         
-        viewLogic()
+        viewLogic(option: 1)
 
     }
     func startTimer() {
@@ -110,15 +137,15 @@ class ViewController: UIViewController {
         
     }
     func stopTimer() {
-        timer?.invalidate()
-        timer = nil
+        unRunView()
+        endTimer()
         resetTime()
     }
     
     func pauseTimer() {
-        startStopButton?.setTitle("Start", for: .normal)
-        timer?.invalidate()
-        timer = nil
+        startStopButton?.setTitle("start", for: .normal)
+        endTimer()
+        unRunView()
     }
     func resetTime() {
         minutes = 0
@@ -126,6 +153,10 @@ class ViewController: UIViewController {
         milliSeconds = 0
         hour = 0
         updateLabel()
+    }
+    func endTimer() {
+        timer?.invalidate()
+        timer = nil
     }
     func updateLabel() {
         timeLabel?.text = "\(String.twoDigInts(theInt: minutes)):\(String.twoDigInts(theInt: seconds)):\(String.twoDigInts(theInt: milliSeconds))"
@@ -156,3 +187,17 @@ extension String {
         return twoDigs
     }
 }
+
+/*
+ UIView.animate(withDuration: 3 / 2, delay: 0, options: [.autoreverse], animations: {() -> Void in
+ 
+ let transform: CGAffineTransform = CGAffineTransform(rotationAngle: CGFloat(Double.pi))
+ 
+ self.startStopButton?.transform = transform
+ 
+ }, completion: {(finished: Bool) -> Void in
+ let transform: CGAffineTransform = CGAffineTransform.identity
+ self.startStopButton?.transform = transform
+ })
+ 
+ */
